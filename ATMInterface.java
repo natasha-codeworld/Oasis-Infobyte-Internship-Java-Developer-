@@ -4,7 +4,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.UUID;
-import java.text.SimpleDateFormat;  
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date; 
 public class ATMInterface{
     private static String FILE_NAME = "transactionDetails.txt";
@@ -46,10 +47,78 @@ public class ATMInterface{
          }
     }
     private static void withdrawMoney(){
-        System.out.println("withdraw");
+      Scanner sc=new Scanner(System.in);
+      try
+      {
+          BufferedReader r = new BufferedReader(new FileReader(FILE_NAME));
+          //FileReader reader = new FileReader("bank.txt");
+          StringBuilder fileContents = new StringBuilder();
+          System.out.println("Enter Withdrawal Amount::");
+          double amt= sc.nextDouble();
+          String l;
+          l = r.readLine();
+          String[] accountData = l.split(",");
+          System.out.println(Arrays.toString(accountData));
+          double balance = Double.parseDouble(accountData[3]);
+          if(balance>=amt)
+          {
+              balance -= amt;
+              accountData[3] = String.valueOf(balance);
+              fileContents.append(String.join(",", accountData)).append("\n");
+          }
+          else
+          {
+              System.out.println("Insufficient Balance");
+          }
+
+       PrintWriter writer = new PrintWriter(new FileWriter(FILE_NAME,true));
+       //FileWriter writer = new FileWriter(FILE_NAME);
+       String accountNumber = accountData[3];
+       double amount = amt;
+       UUID transactionid = UUID.randomUUID();
+       SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+       Date date = new Date();  
+       writer.println(transactionid+","+accountNumber+",-Rs"+amount+","+formatter.format(date));
+       System.out.println("Amount successfully withdrawn");
+       writer.close();
+      }
+      catch(IOException e)
+      {
+          System.out.println("Error occurred while withdrawing money.");
+      }
     }
     private static void depositMoney(){
-       System.out.println("deposit");
+        Scanner sc=new Scanner(System.in);
+        try
+        {
+            BufferedReader r = new BufferedReader(new FileReader(FILE_NAME));
+            //FileReader reader = new FileReader("bank.txt");
+            StringBuilder fileContents = new StringBuilder();
+            System.out.println("Enter Deposit Amount::");
+            double amt= sc.nextDouble();
+            String l;
+            l = r.readLine();
+            String[] accountData = l.split(",");
+            System.out.println(Arrays.toString(accountData));
+            double balance = Double.parseDouble(accountData[3]);
+            balance += amt;
+            accountData[3] = String.valueOf(balance);
+            fileContents.append(String.join(",", accountData)).append("\n");
+         PrintWriter writer = new PrintWriter(new FileWriter(FILE_NAME,true));
+         //FileWriter writer = new FileWriter(FILE_NAME);
+         String accountNumber = accountData[3];
+         double amount = amt;
+         UUID transactionid = UUID.randomUUID();
+         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+         Date date = new Date();  
+         writer.println(transactionid+","+accountNumber+",+Rs"+amount+","+formatter.format(date));
+         System.out.println("Amount successfully deposited");
+         writer.close();
+        }
+        catch(IOException e)
+        {
+            System.out.println("Error occurred while withdrawing money.");
+        }
     }
     private static void transferMoney(){
       try{
